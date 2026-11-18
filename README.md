@@ -15,6 +15,24 @@ ForceKill is a single native Win32 executable with no runtime dependencies
 The app icon is generated rather than committed: run `python tools/make_icon.py`
 once in a fresh checkout before the first build, or let CI do it for you.
 
+## Install
+
+1. Open [Releases](../../releases) and download `ForceKillSetup-1.0.0.exe` from
+the latest release's assets (the "Source code" archives are not the app).
+2. Run it. The build is unsigned, so SmartScreen shows "Windows protected your
+PC" - click **More info**, then **Run anyway**.
+3. The installer is per-user: no admin prompt and nothing system-wide. It copies
+`ForceKill.exe` to `%LOCALAPPDATA%\Programs\ForceKill`, adds a Start Menu
+shortcut, and offers "Start ForceKill when I sign in". Your settings and log
+live in `%LOCALAPPDATA%\ForceKill`.
+4. ForceKill starts in the notification area. Press **Ctrl+Alt+F4**, or
+right-click the icon.
+
+To remove it, use Settings > Apps > Installed apps > ForceKill. The uninstaller
+asks whether to delete `%LOCALAPPDATA%\ForceKill`; **No** (the default) keeps
+your hotkey, protected-apps list and log for a later reinstall, **Yes** deletes
+them.
+
 ## Features
 
 - Configurable hotkey: click the box, press the combination. Modifiers and key
@@ -47,10 +65,9 @@ These are always enforced, regardless of settings:
 
 ## Usage
 
-1. Install `ForceKillSetup-1.0.0.exe` (per-user, no admin prompt).
-2. ForceKill starts in the notification area.
-3. Press **Ctrl+Alt+F4** to kill the active window's process.
-4. Right-click the tray icon for Settings, the protected-apps list, the log
+1. ForceKill starts in the notification area after installing.
+2. Press **Ctrl+Alt+F4** to kill the active window's process.
+3. Right-click the tray icon for Settings, the protected-apps list, the log
    file, pause, **Start with Windows**, restart-as-admin and exit. Double-click
    opens Settings.
 
