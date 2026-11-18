@@ -163,6 +163,11 @@ function Get-RunValue {
 function Set-RunValue {
     param([string]$Value)
 
+    # A fresh profile may not have the Run key at all, and New-ItemProperty does not
+    # create a missing container.
+    if (-not (Test-Path -LiteralPath $RunKey)) {
+        New-Item -Path $RunKey -Force | Out-Null
+    }
     New-ItemProperty -Path $RunKey -Name $ValueName -Value $Value -PropertyType String -Force |
         Out-Null
 }
