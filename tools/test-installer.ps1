@@ -418,7 +418,7 @@ $SetupArgs = "$InstallArgs /DIR=`"$InstallDir`""
 
 # The test deletes this directory before and after it runs.
 if ((Split-Path -Leaf $InstallDir) -ieq $AppName) {
-    throw "Refusing -InstallDir $InstallDir: it looks like a real installation, and this test deletes it."
+    throw "Refusing -InstallDir ${InstallDir}: it looks like a real installation, and this test deletes it."
 }
 
 if ($AllowInstalled -and (Test-Path -LiteralPath $ArtifactDir)) {
