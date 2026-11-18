@@ -4,10 +4,20 @@
 ;
 ; Build after compiling ForceKill.exe:
 ;   iscc /DBinDir=build\Release installer\ForceKill.iss
-; The output lands in dist\.
+; The output lands in dist\. BinDir is relative to the repository root, or an
+; absolute path; see BinSource below for why that needs adjusting.
 
 #ifndef BinDir
-  #define BinDir "..\build\Release"
+  #define BinDir "build\Release"
+#endif
+
+; ISCC anchors relative Source paths at this file's directory, but BinDir is
+; documented relative to the repository root, so step up one level first. A
+; /DBinDir with a drive letter is absolute and is used as given.
+#if Pos(":", BinDir) == 0
+  #define BinSource "..\" + BinDir
+#else
+  #define BinSource BinDir
 #endif
 
 #define AppName "ForceKill"
@@ -48,7 +58,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 Name: "autostart"; Description: "Start {#AppName} when I sign in"; GroupDescription: "Startup:"; Flags: checkedonce
 
 [Files]
-Source: "{#BinDir}\{#AppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#BinSource}\{#AppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{autoprograms}\{#AppName}"; Filename: "{app}\{#AppExeName}"
