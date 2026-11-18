@@ -75,12 +75,16 @@ The log is `%LOCALAPPDATA%\ForceKill\forcekill.log` (rotated at 1 MB).
 
 ## Building
 
-### Visual Studio 2022 (recommended on Windows)
+### Visual Studio 2022 or newer (recommended on Windows)
 
 ```bat
-cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+cmake -S . -B build -A x64
 cmake --build build --config Release
 ```
+
+Leaving out `-G` lets CMake pick the newest Visual Studio it finds, which is what
+the CI does because its runner image ships Visual Studio 2026. To pin an older
+install, add `-G "Visual Studio 17 2022"`.
 
 ### MinGW-w64 cross compile from Linux
 
