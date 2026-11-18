@@ -1,0 +1,104 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+    tags: ["v*"]
+  pull_request:
+  # Manual runs default to the installer smoke test alone, so it can be exercised
+  # without pushing a tag; pick "everything" to build the exe and installer too.
+  workflow_dispatch:
+    inputs:
+      run:
+        description: "Which jobs to run"
+        type: choice
+        options:
+          - installer-smoke
+          - everything
+        default: installer-smoke
+
+permissions:
+  contents: write
+
+jobs:
+  windows-x64:
+    runs-on: windows-latest
+    if: github.event_name != 'workflow_dispatch' || inputs.run == 'everything'
+    steps:
+      - uses: actions/checkout@v4
+
+      # The icon is generated rather than committed (see tools/make_icon.py).
+      - name: Generate icon
+        run: python tools/make_icon.py
+
+      - name: Configure
+        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+
+      - name: Build installer
+        shell: pwsh
+        run: |
+          # Chocolatey also shims ISCC onto PATH, so fall back to it if the
+          # install directory ever changes.
+          $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { $iscc = (Get-Command ISCC.exe -ErrorAction Stop).Source }
+          & $iscc /DBinDir=build\Release installer\ForceKill.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed with $LASTEXITCODE" }
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ForceKill-windows-x64
+          path: |
+            build/Release/ForceKill.exe
+            dist/ForceKillSetup-*.exe
+
+      - name: Attach to release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/Release/ForceKill.exe
+            dist/ForceKillSetup-*.exe
+
+  # Compiling the installer proves only that the Pascal Script parses. This job
+  # installs and uninstalls it for real and asserts the two promises the .iss
+  # makes: no leftover HKCU Run value, and user data kept on a silent uninstall.
+  # It is also what a manual run in the Actions UI exercises by default.
+  installer-smoke:
+    name: installer smoke test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # The icon is generated rather than committed (see tools/make_icon.py).
+      - name: Generate icon
+        run: python tools/make_icon.py
+
+      - name: Configure
+        run: cmake -S . -B build -G "Visual Studio 17 2022" -A x64
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Install Inno Setup
+        run: choco install innosetup --no-progress -y
+
+      - name: Compile installer
+        shell: pwsh
+        run: |
+          $iscc = "C:\Program Files (x86)\Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { $iscc = (Get-Command ISCC.exe -ErrorAction Stop).Source }
+          & $iscc /DBinDir=build\Release installer\ForceKill.iss
+          if ($LASTEXITCODE -ne 0) { throw "ISCC failed with $LASTEXITCODE" }
+
+      - name: Install, uninstall and assert
+        shell: pwsh
+        run: |
+          $setup = Get-ChildItem -Path dist -Filter 'ForceKillSetup-*.exe' | Select-Object -First 1
+          if (-not $setup) { throw 'ISCC produced no installer in dist' }
+          ./tools/test-installer.ps1 -Setup $setup.FullName

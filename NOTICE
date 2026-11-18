@@ -1,0 +1,24 @@
+ForceKill - third-party attribution
+===================================
+
+This project was designed after comparing two existing utilities. It is a new
+implementation; no source file from either project is copied into this
+repository. The credits below are kept because the behaviour and architecture
+were inspired by them.
+
+1. force-quit (standalone Win32 "kill the foreground window with a hotkey")
+   https://github.com/marcel2215/force-quit
+   MIT License, Copyright (c) 2023 Marcel Kwiatkowski
+
+   The MIT license of that project permits reuse of its structure with
+   attribution, which this NOTICE provides. The full MIT text is reproduced in
+   LICENSE.
+
+2. "Force Kill Active Window" Windhawk mod (force-kill-active-window) by
+   vfxturjo, https://github.com/zunaidFarouque
+   Windhawk mod page: force-kill-active-window 1.0
+
+   The mod carried no license file at the time it was reviewed, so this project
+   only re-implements the ideas it demonstrated: a configurable kill hotkey, a
+   protected-apps list, and live rebinding of the hotkey without restarting.
+   No mod code was copied.
