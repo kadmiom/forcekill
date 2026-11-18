@@ -34,14 +34,14 @@ void RotateIfTooLarge(const std::wstring& path) {
 
 }  // namespace
 
-std::wstring log::Path() {
+std::wstring applog::Path() {
     const std::wstring directory = settings::Directory();
     if (directory.empty())
         return std::wstring();
     return directory + L"\\forcekill.log";
 }
 
-void log::Init() {
+void applog::Init() {
     if (!g_lockReady) {
         InitializeCriticalSection(&g_lock);
         g_lockReady = true;
@@ -58,14 +58,14 @@ void log::Init() {
                          OPEN_ALWAYS, FILE_ATTRIBUTE_NORMAL, nullptr);
 }
 
-void log::Close() {
+void applog::Close() {
     if (g_file != INVALID_HANDLE_VALUE) {
         CloseHandle(g_file);
         g_file = INVALID_HANDLE_VALUE;
     }
 }
 
-void log::Write(const wchar_t* format, ...) {
+void applog::Write(const wchar_t* format, ...) {
     if (g_file == INVALID_HANDLE_VALUE || !g_lockReady || !format)
         return;
 

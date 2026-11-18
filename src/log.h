@@ -2,7 +2,7 @@
 
 #include <string>
 
-namespace log {
+namespace applog {
 
 // Opens %LOCALAPPDATA%\ForceKill\forcekill.log (rotated at 1 MB).
 void Init();
@@ -13,4 +13,4 @@ void Write(const wchar_t* format, ...);
 
 std::wstring Path();
 
-}  // namespace log
+}  // namespace applog

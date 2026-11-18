@@ -62,7 +62,7 @@ bool BindHotkey(const Settings& value) {
 
 void WarnHotkeyUnavailable() {
     const std::wstring label = hotkey::Describe(g_settings);
-    log::Write(L"RegisterHotKey failed for %ls", label.c_str());
+    applog::Write(L"RegisterHotKey failed for %ls", label.c_str());
     tray::Balloon(g_window, L"Hotkey unavailable",
                   L"Could not register " + label +
                       L". Another app probably owns that combination - choose another in Settings.",
@@ -91,7 +91,7 @@ void OpenSettings() {
 
     g_settings = candidate;
     settings::Save(g_settings);
-    log::Write(L"Settings saved: hotkey=%ls protected=%lu", hotkey::Describe(g_settings).c_str(),
+    applog::Write(L"Settings saved: hotkey=%ls protected=%lu", hotkey::Describe(g_settings).c_str(),
                static_cast<unsigned long>(g_settings.protectedApps.size()));
     UpdateTrayTip();
 }
@@ -100,11 +100,11 @@ void TogglePause() {
     g_paused = !g_paused;
     if (g_paused) {
         UnbindHotkey();
-        log::Write(L"Hotkey paused.");
+        applog::Write(L"Hotkey paused.");
     } else {
         if (!BindHotkey(g_settings))
             WarnHotkeyUnavailable();
-        log::Write(L"Hotkey resumed.");
+        applog::Write(L"Hotkey resumed.");
     }
     UpdateTrayTip();
 }
@@ -119,7 +119,7 @@ void ToggleAutostart() {
         return;
     }
 
-    log::Write(L"Autostart %ls.", enable ? L"enabled" : L"disabled");
+    applog::Write(L"Autostart %ls.", enable ? L"enabled" : L"disabled");
     tray::Balloon(g_window, L"ForceKill",
                   enable ? L"ForceKill will start when you sign in."
                          : L"ForceKill will no longer start when you sign in.",
@@ -133,7 +133,7 @@ void RestartElevated() {
 
     const HINSTANCE result = ShellExecuteW(nullptr, L"runas", path.c_str(), L"--takeover", nullptr, SW_SHOWNORMAL);
     if (reinterpret_cast<INT_PTR>(result) > 32) {
-        log::Write(L"Restarting with administrator rights.");
+        applog::Write(L"Restarting with administrator rights.");
         DestroyWindow(g_window);
     } else {
         MessageBoxW(g_window, L"Elevation was cancelled.", L"ForceKill", MB_OK | MB_ICONWARNING);
@@ -142,7 +142,7 @@ void RestartElevated() {
 
 void HandleKill() {
     const KillOutcome outcome = KillForegroundWindow(g_settings.protectedApps);
-    log::Write(L"Kill: ok=%ls pid=%lu %ls", outcome.ok ? L"yes" : L"no", static_cast<unsigned long>(outcome.pid),
+    applog::Write(L"Kill: ok=%ls pid=%lu %ls", outcome.ok ? L"yes" : L"no", static_cast<unsigned long>(outcome.pid),
                outcome.message.c_str());
     tray::Balloon(g_window, outcome.ok ? L"ForceKill" : L"Nothing killed", outcome.message,
                   outcome.ok ? NIIF_INFO : NIIF_WARNING);
@@ -154,7 +154,7 @@ void HandleCommand(HWND hwnd, UINT id) {
             OpenSettings();
             break;
         case tray::kMenuOpenLog:
-            ShellExecuteW(nullptr, L"open", log::Path().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
+            ShellExecuteW(nullptr, L"open", applog::Path().c_str(), nullptr, nullptr, SW_SHOWNORMAL);
             break;
         case tray::kMenuPause:
             TogglePause();
@@ -249,7 +249,7 @@ bool AcquireInstance() {
         Sleep(100);
     }
 
-    log::Write(L"Previous instance did not release the lock; continuing anyway.");
+    applog::Write(L"Previous instance did not release the lock; continuing anyway.");
     return true;
 }
 
@@ -261,38 +261,38 @@ int Shutdown(int code) {
         CloseHandle(g_instanceMutex);
         g_instanceMutex = nullptr;
     }
-    log::Close();
+    applog::Close();
     return code;
 }
 
 }  // namespace
 
 int WINAPI WinMain(HINSTANCE instance, HINSTANCE, LPSTR, int) {
-    log::Init();
-    log::Write(L"ForceKill starting (elevated=%ls).", IsElevated() ? L"yes" : L"no");
+    applog::Init();
+    applog::Write(L"ForceKill starting (elevated=%ls).", IsElevated() ? L"yes" : L"no");
 
     if (!AcquireInstance()) {
         if (const HWND existing = FindWindowW(kWindowClass, nullptr))
             PostMessageW(existing, kShowSettingsMessage, 0, 0);
-        log::Write(L"Another instance is already running; exiting.");
+        applog::Write(L"Another instance is already running; exiting.");
         return Shutdown(0);
     }
 
     if (!RegisterAppWindowClass(instance)) {
-        log::Write(L"RegisterClassExW failed (%lu).", static_cast<unsigned long>(GetLastError()));
+        applog::Write(L"RegisterClassExW failed (%lu).", static_cast<unsigned long>(GetLastError()));
         return Shutdown(1);
     }
 
     g_window = CreateWindowExW(0, kWindowClass, L"ForceKill", WS_POPUP, 0, 0, 0, 0, nullptr, nullptr, instance, nullptr);
     if (!g_window) {
-        log::Write(L"CreateWindowExW failed (%lu).", static_cast<unsigned long>(GetLastError()));
+        applog::Write(L"CreateWindowExW failed (%lu).", static_cast<unsigned long>(GetLastError()));
         return Shutdown(1);
     }
 
     g_taskbarCreatedMessage = RegisterWindowMessageW(L"TaskbarCreated");
 
     g_settings = settings::Load();
-    log::Write(L"Config: %ls (hotkey %ls)", settings::ConfigPath().c_str(), hotkey::Describe(g_settings).c_str());
+    applog::Write(L"Config: %ls (hotkey %ls)", settings::ConfigPath().c_str(), hotkey::Describe(g_settings).c_str());
 
     tray::Add(g_window, kTrayMessage, hotkey::Describe(g_settings));
 
@@ -305,6 +305,6 @@ int WINAPI WinMain(HINSTANCE instance, HINSTANCE, LPSTR, int) {
         DispatchMessageW(&message);
     }
 
-    log::Write(L"ForceKill exiting.");
+    applog::Write(L"ForceKill exiting.");
     return Shutdown(0);
 }
