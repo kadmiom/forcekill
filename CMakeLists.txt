@@ -43,7 +43,9 @@ target_link_libraries(ForceKill PRIVATE
 
 if(MSVC)
     target_compile_options(ForceKill PRIVATE /W4 /utf-8 /permissive-)
-    target_link_options(ForceKill PRIVATE /SUBSYSTEM:WINDOWS)
+    # resource.rc embeds our own RT_MANIFEST, so stop the linker from adding a
+    # second one (CVT1100: duplicate resource, type:MANIFEST, name:1).
+    target_link_options(ForceKill PRIVATE /SUBSYSTEM:WINDOWS /MANIFEST:NO)
 else()
     target_compile_options(ForceKill PRIVATE -Wall -Wextra)
     # Ship without MinGW runtime DLLs next to the exe.
