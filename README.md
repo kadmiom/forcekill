@@ -193,6 +193,7 @@ The last step prints both rounds and fourteen `pass` lines, then a summary:
   pass  install with the autostart task unchecked finished with exit code 0
   pass  the uninstaller was installed
   pass  no Run value while the autostart task is unchecked
+  pass  the uninstaller finished
   pass  the tray-written Run value was removed
   pass  the settings folder was kept
   pass  config.ini was kept unchanged
@@ -201,6 +202,7 @@ The last step prints both rounds and fourteen `pass` lines, then a summary:
   pass  install with the autostart task finished with exit code 0
   pass  the Run value points at the installed exe
   pass  the settings folder survived the reinstall
+  pass  the uninstaller finished
   pass  the installer-written Run value was removed
   pass  the settings folder was kept again
 
