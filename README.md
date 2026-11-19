@@ -10,14 +10,14 @@ is **Ctrl+Alt+F4**; it is fully configurable.
 
 ForceKill is a single native Win32 executable with no runtime dependencies
 (no .NET, no Windhawk, no installer framework DLLs). The installer is one
-`ForceKillSetup-1.0.1.exe`.
+`ForceKillSetup-1.0.2.exe`.
 
 The app icon is generated rather than committed: run `python tools/make_icon.py`
 once in a fresh checkout before the first build, or let CI do it for you.
 
 ## Install
 
-1. Open [Releases](../../releases) and download `ForceKillSetup-1.0.1.exe` from
+1. Open [Releases](../../releases) and download `ForceKillSetup-1.0.2.exe` from
 the latest release's assets (the "Source code" archives are not the app).
 2. Run it. The build is unsigned, so SmartScreen shows "Windows protected your
 PC" - click **More info**, then **Run anyway**.
@@ -111,7 +111,7 @@ architecture directives use `x64compatible`, which replaced the deprecated
 iscc /DBinDir=build\Release installer\ForceKill.iss
 ```
 
-Output: `dist\ForceKillSetup-1.0.1.exe`. `BinDir` may also be set through the
+Output: `dist\ForceKillSetup-1.0.2.exe`. `BinDir` may also be set through the
 `#define` at the top of `installer/ForceKill.iss`.
 
 ### CI
@@ -121,7 +121,7 @@ Output: `dist\ForceKillSetup-1.0.1.exe`. `BinDir` may also be set through the
 Push a tag to publish:
 
 ```sh
-git tag v1.0.1 && git push origin v1.0.1
+git tag v1.0.2 && git push origin v1.0.2
 ```
 
 #### Releasing
@@ -141,7 +141,7 @@ Windows after building the installer, with ForceKill itself quit from the tray (
 uninstaller would kill a running copy):
 
 ```powershell
-pwsh -File tools\test-installer.ps1 -Setup dist\ForceKillSetup-1.0.1.exe
+pwsh -File tools\test-installer.ps1 -Setup dist\ForceKillSetup-1.0.2.exe
 ```
 
 To see what the script derives from `installer/ForceKill.iss` before running any of
@@ -193,7 +193,6 @@ The last step prints both rounds and fourteen `pass` lines, then a summary:
   pass  install with the autostart task unchecked finished with exit code 0
   pass  the uninstaller was installed
   pass  no Run value while the autostart task is unchecked
-  pass  the uninstaller finished
   pass  the tray-written Run value was removed
   pass  the settings folder was kept
   pass  config.ini was kept unchanged
@@ -202,7 +201,6 @@ The last step prints both rounds and fourteen `pass` lines, then a summary:
   pass  install with the autostart task finished with exit code 0
   pass  the Run value points at the installed exe
   pass  the settings folder survived the reinstall
-  pass  the uninstaller finished
   pass  the installer-written Run value was removed
   pass  the settings folder was kept again
 
