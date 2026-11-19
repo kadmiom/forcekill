@@ -88,7 +88,7 @@ void tray::Balloon(HWND owner, const std::wstring& title, const std::wstring& te
     Shell_NotifyIconW(NIM_MODIFY, &data);
 }
 
-void tray::ShowMenu(HWND owner, bool paused, bool autostartEnabled, bool elevated,
+void tray::ShowMenu(HWND owner, bool paused, bool autostartEnabled, bool reopenEnabled, bool elevated,
                     const std::wstring& hotkeyLabel) {
     HMENU menu = CreatePopupMenu();
     if (!menu)
@@ -102,6 +102,8 @@ void tray::ShowMenu(HWND owner, bool paused, bool autostartEnabled, bool elevate
     AppendMenuW(menu, MF_STRING, kMenuPause, paused ? L"Resume hotkey" : L"Pause hotkey");
     AppendMenuW(menu, MF_STRING | (autostartEnabled ? MF_CHECKED : MF_UNCHECKED), kMenuAutostart,
                 L"Start with Windows");
+    AppendMenuW(menu, MF_STRING | (reopenEnabled ? MF_CHECKED : MF_UNCHECKED), kMenuReopen,
+                L"Start apps again after killing them");
     AppendMenuW(menu, MF_STRING | (elevated ? MF_GRAYED : 0), kMenuElevate, L"Restart as administrator");
     AppendMenuW(menu, MF_SEPARATOR, 0, nullptr);
     AppendMenuW(menu, MF_STRING, kMenuExit, L"Exit");
