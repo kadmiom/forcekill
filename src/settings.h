@@ -12,11 +12,12 @@ struct Settings {
     bool shift = false;
     bool win = false;
     std::vector<std::wstring> protectedApps;
+    bool reopenAfterKill = false;
 };
 
 namespace settings {
 
-// %LOCALAPPDATA%\ForceKill, created on first use. Empty string on failure.
+// %LOCALAPPDATA%\\ForceKill, created on first use. Empty string on failure.
 std::wstring Directory();
 std::wstring ConfigPath();
 std::vector<std::wstring> DefaultProtectedApps();

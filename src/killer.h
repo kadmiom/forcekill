@@ -13,5 +13,6 @@ struct KillOutcome {
 };
 
 // Resolves the foreground window, applies every safety guard, then terminates
-// the owning process and its children.
-KillOutcome KillForegroundWindow(const std::vector<std::wstring>& protectedApps);
+// the owning process and its children. With reopenAfterKill the terminated
+// executable is started again, without its original command line.
+KillOutcome KillForegroundWindow(const std::vector<std::wstring>& protectedApps, bool reopenAfterKill);

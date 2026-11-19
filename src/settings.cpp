@@ -82,6 +82,8 @@ Settings settings::Load() {
     if (vk != 0)
         value.vk = vk;
 
+    value.reopenAfterKill = ReadInt(path, L"behavior", L"reopen", 0) != 0;
+
     const std::wstring apps = ReadString(path, L"safety", L"protected", std::wstring());
     if (!apps.empty()) {
         value.protectedApps.clear();
@@ -113,5 +115,7 @@ bool settings::Save(const Settings& value) {
         joined += value.protectedApps[i];
     }
     WritePrivateProfileStringW(L"safety", L"protected", joined.c_str(), path.c_str());
+
+    WriteInt(path, L"behavior", L"reopen", value.reopenAfterKill ? 1 : 0);
     return true;
 }

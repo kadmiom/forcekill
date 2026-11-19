@@ -20,6 +20,7 @@ constexpr int kIdAlt = 2003;
 constexpr int kIdShift = 2004;
 constexpr int kIdWin = 2005;
 constexpr int kIdProtected = 2006;
+constexpr int kIdReopen = 2007;
 
 constexpr int kClientWidth = 470;
 constexpr int kClientHeight = 432;
@@ -35,6 +36,7 @@ struct State {
     HWND shift = nullptr;
     HWND win = nullptr;
     HWND protectedEdit = nullptr;
+    HWND reopen = nullptr;
     HFONT font = nullptr;
 };
 
@@ -76,6 +78,7 @@ void SyncCheckboxes(const State* state) {
     SendMessageW(state->alt, BM_SETCHECK, state->edited.alt ? BST_CHECKED : BST_UNCHECKED, 0);
     SendMessageW(state->shift, BM_SETCHECK, state->edited.shift ? BST_CHECKED : BST_UNCHECKED, 0);
     SendMessageW(state->win, BM_SETCHECK, state->edited.win ? BST_CHECKED : BST_UNCHECKED, 0);
+    SendMessageW(state->reopen, BM_SETCHECK, state->edited.reopenAfterKill ? BST_CHECKED : BST_UNCHECKED, 0);
 }
 
 void ReadCheckboxes(State* state) {
@@ -83,6 +86,7 @@ void ReadCheckboxes(State* state) {
     state->edited.alt = SendMessageW(state->alt, BM_GETCHECK, 0, 0) == BST_CHECKED;
     state->edited.shift = SendMessageW(state->shift, BM_GETCHECK, 0, 0) == BST_CHECKED;
     state->edited.win = SendMessageW(state->win, BM_GETCHECK, 0, 0) == BST_CHECKED;
+    state->edited.reopenAfterKill = SendMessageW(state->reopen, BM_GETCHECK, 0, 0) == BST_CHECKED;
 }
 
 void PaintHotkeyBox(State* state, HWND hwnd) {
@@ -307,7 +311,6 @@ void BuildControls(HWND window, State* state) {
     state->alt = AddCheckbox(window, state, kIdAlt, L"Alt", 86, 74, 60);
     state->shift = AddCheckbox(window, state, kIdShift, L"Shift", 152, 74, 64);
     state->win = AddCheckbox(window, state, kIdWin, L"Win", 224, 74, 60);
-    SyncCheckboxes(state);
 
     AddLabel(window, state, L"Click the box above, then press the key combination you want.", 16, 104, 438);
 
@@ -316,7 +319,10 @@ void BuildControls(HWND window, State* state) {
                                       text::Join(state->edited.protectedApps, L"\r\n"),
                                       WS_CHILD | WS_VISIBLE | WS_TABSTOP | WS_VSCROLL | ES_LEFT | ES_MULTILINE |
                                           ES_AUTOVSCROLL | ES_WANTRETURN,
-                                      WS_EX_CLIENTEDGE, kIdProtected, 16, 154, 438, 186);
+                                      WS_EX_CLIENTEDGE, kIdProtected, 16, 154, 438, 158);
+
+    state->reopen = AddCheckbox(window, state, kIdReopen, L"Start the app again right after killing it", 16, 320, 438);
+    SyncCheckboxes(state);
 
     AddLabel(window, state, L"System and critical Windows processes are always protected.", 16, 350, 438);
 

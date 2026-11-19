@@ -144,6 +144,46 @@ std::vector<DWORD> Descendants(DWORD root) {
     return result;
 }
 
+std::wstring DirectoryOf(const std::wstring& path) {
+    const size_t position = path.find_last_of(L"\\/");
+    return position == std::wstring::npos ? std::wstring() : path.substr(0, position);
+}
+
+// Starts the terminated executable again in its own folder. The original
+// command line is not available here, so the program reopens with no arguments -
+// enough for an app that hangs to come back the way a double-click would.
+bool ReopenProcess(const std::wstring& path, DWORD* errorCode) {
+    if (path.empty()) {
+        *errorCode = ERROR_FILE_NOT_FOUND;
+        return false;
+    }
+
+    const std::wstring directory = DirectoryOf(path);
+    std::wstring commandLine = L"\"" + path + L"\"";
+
+    for (int attempt = 0;; ++attempt) {
+        STARTUPINFOW startup{};
+        startup.cb = sizeof(startup);
+        PROCESS_INFORMATION info{};
+
+        const BOOL created = CreateProcessW(path.c_str(), commandLine.data(), nullptr, nullptr, FALSE, 0, nullptr,
+                                            directory.empty() ? nullptr : directory.c_str(), &startup, &info);
+        if (created) {
+            CloseHandle(info.hThread);
+            CloseHandle(info.hProcess);
+            *errorCode = ERROR_SUCCESS;
+            return true;
+        }
+
+        *errorCode = GetLastError();
+        // The dying image can still hold its own file for a moment, so give the
+        // loader a few chances before reporting the failure.
+        if (*errorCode != ERROR_SHARING_VIOLATION || attempt >= 9)
+            return false;
+        Sleep(50);
+    }
+}
+
 bool TerminatePid(DWORD pid, DWORD* errorCode) {
     HANDLE process = OpenProcess(PROCESS_TERMINATE, FALSE, pid);
     if (!process) {
@@ -161,7 +201,7 @@ bool TerminatePid(DWORD pid, DWORD* errorCode) {
 
 }  // namespace
 
-KillOutcome KillForegroundWindow(const std::vector<std::wstring>& protectedApps) {
+KillOutcome KillForegroundWindow(const std::vector<std::wstring>& protectedApps, bool reopenAfterKill) {
     KillOutcome outcome;
 
     const HWND target = GetForegroundWindow();
@@ -228,5 +268,14 @@ KillOutcome KillForegroundWindow(const std::vector<std::wstring>& protectedApps)
 
     outcome.ok = true;
     outcome.message = L"Terminated " + outcome.name + L" (PID " + std::to_wstring(pid) + L").";
+
+    if (reopenAfterKill) {
+        DWORD reopenError = ERROR_FILE_NOT_FOUND;
+        if (havePath && ReopenProcess(processPath, &reopenError)) {
+            outcome.message += L" Reopened it.";
+        } else {
+            outcome.message += L" Reopening it failed (error " + std::to_wstring(reopenError) + L").";
+        }
+    }
     return outcome;
 }

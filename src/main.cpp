@@ -91,8 +91,9 @@ void OpenSettings() {
 
     g_settings = candidate;
     settings::Save(g_settings);
-    applog::Write(L"Settings saved: hotkey=%ls protected=%lu", hotkey::Describe(g_settings).c_str(),
-               static_cast<unsigned long>(g_settings.protectedApps.size()));
+    applog::Write(L"Settings saved: hotkey=%ls protected=%lu reopen=%ls", hotkey::Describe(g_settings).c_str(),
+               static_cast<unsigned long>(g_settings.protectedApps.size()),
+               g_settings.reopenAfterKill ? L"yes" : L"no");
     UpdateTrayTip();
 }
 
@@ -141,7 +142,7 @@ void RestartElevated() {
 }
 
 void HandleKill() {
-    const KillOutcome outcome = KillForegroundWindow(g_settings.protectedApps);
+    const KillOutcome outcome = KillForegroundWindow(g_settings.protectedApps, g_settings.reopenAfterKill);
     applog::Write(L"Kill: ok=%ls pid=%lu %ls", outcome.ok ? L"yes" : L"no", static_cast<unsigned long>(outcome.pid),
                outcome.message.c_str());
     tray::Balloon(g_window, outcome.ok ? L"ForceKill" : L"Nothing killed", outcome.message,
