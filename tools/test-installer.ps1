@@ -25,7 +25,7 @@
 #
 # Run it from the repository root after building the installer:
 #
-#   pwsh -File tools\test-installer.ps1 -Setup dist\ForceKillSetup-1.0.0.exe
+#   pwsh -File tools\test-installer.ps1 -Setup dist\ForceKillSetup-1.0.1.exe
 #
 # Windows PowerShell 5.1 and PowerShell 7 both work. Exits non-zero if a check fails.
 
