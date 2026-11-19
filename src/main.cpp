@@ -127,6 +127,16 @@ void ToggleAutostart() {
                   NIIF_INFO);
 }
 
+void ToggleReopen() {
+    g_settings.reopenAfterKill = !g_settings.reopenAfterKill;
+    settings::Save(g_settings);
+    applog::Write(L"Reopen after kill %ls.", g_settings.reopenAfterKill ? L"enabled" : L"disabled");
+    tray::Balloon(g_window, L"ForceKill",
+                  g_settings.reopenAfterKill ? L"Killed apps will be started again."
+                                            : L"Killed apps will stay closed.",
+                  NIIF_INFO);
+}
+
 void RestartElevated() {
     const std::wstring path = ExecutablePath();
     if (path.empty())
@@ -163,6 +173,9 @@ void HandleCommand(HWND hwnd, UINT id) {
         case tray::kMenuAutostart:
             ToggleAutostart();
             break;
+        case tray::kMenuReopen:
+            ToggleReopen();
+            break;
         case tray::kMenuElevate:
             RestartElevated();
             break;
@@ -181,7 +194,8 @@ void HandleTrayEvent(HWND hwnd, UINT event) {
             break;
         case WM_RBUTTONUP:
         case WM_CONTEXTMENU:
-            tray::ShowMenu(hwnd, g_paused, autostart::IsEnabled(), IsElevated(), hotkey::Describe(g_settings));
+            tray::ShowMenu(hwnd, g_paused, autostart::IsEnabled(), g_settings.reopenAfterKill, IsElevated(),
+                           hotkey::Describe(g_settings));
             break;
         default:
             break;
