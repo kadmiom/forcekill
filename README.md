@@ -42,10 +42,11 @@ them.
 - Tray feedback: every attempt reports what happened ("Terminated
   notepad.exe (PID 1234)", "Access denied - try Restart as administrator").
 - Child processes of the target are terminated too.
-- Optional **Start the app again right after killing it**, ticked in Settings: the
-  terminated program is launched again in its own folder, without the arguments
-  it was originally started with. Useful for an app you want restarted rather
-  than left closed.
+- Optional **Start the app again right after killing it**, ticked in Settings or
+  as **Start apps again after killing them** in the tray menu: the terminated
+  program is launched again in its own folder, without the arguments it was
+  originally started with. Useful for an app you want restarted rather than
+  left closed.
 - Optional **Start with Windows** toggle in the tray menu: writes the per-user
   Run key for the running exe, so the standalone binary autostarts without the
   installer. The menu item is checked while that entry is active.
@@ -72,8 +73,8 @@ These are always enforced, regardless of settings:
 1. ForceKill starts in the notification area after installing.
 2. Press **Ctrl+Alt+F4** to kill the active window's process.
 3. Right-click the tray icon for Settings, the protected-apps list, the log
-   file, pause, **Start with Windows**, restart-as-admin and exit. Double-click
-   opens Settings.
+   file, pause, **Start with Windows**, **Start apps again after killing
+   them**, restart-as-admin and exit. Double-click opens Settings.
 
 The log is `%LOCALAPPDATA%\ForceKill\forcekill.log` (rotated at 1 MB).
 
