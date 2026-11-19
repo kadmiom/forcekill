@@ -6,8 +6,8 @@ IDI_APPICON ICON "forcekill.ico"
 1 24 "forcekill.manifest"
 
 1 VERSIONINFO
-FILEVERSION 1,0,1,0
-PRODUCTVERSION 1,0,1,0
+FILEVERSION 1,0,2,0
+PRODUCTVERSION 1,0,2,0
 FILEFLAGSMASK 0x3fL
 FILEFLAGS 0x0L
 FILEOS VOS_NT_WINDOWS32
@@ -20,11 +20,11 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "ForceKill"
             VALUE "FileDescription", "ForceKill - force-terminate the active window"
-            VALUE "FileVersion", "1.0.1.0"
+            VALUE "FileVersion", "1.0.2.0"
             VALUE "InternalName", "ForceKill"
             VALUE "OriginalFilename", "ForceKill.exe"
             VALUE "ProductName", "ForceKill"
-            VALUE "ProductVersion", "1.0.1.0"
+            VALUE "ProductVersion", "1.0.2.0"
             VALUE "LegalCopyright", "MIT licensed"
         END
     END
