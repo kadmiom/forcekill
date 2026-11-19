@@ -21,7 +21,7 @@
 #endif
 
 #define AppName "ForceKill"
-#define AppVersion "1.0.0"
+#define AppVersion "1.0.1"
 #define AppExeName "ForceKill.exe"
 #define AppPublisher "ForceKill"
 
