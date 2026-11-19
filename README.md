@@ -10,14 +10,14 @@ is **Ctrl+Alt+F4**; it is fully configurable.
 
 ForceKill is a single native Win32 executable with no runtime dependencies
 (no .NET, no Windhawk, no installer framework DLLs). The installer is one
-`ForceKillSetup-1.0.0.exe`.
+`ForceKillSetup-1.0.1.exe`.
 
 The app icon is generated rather than committed: run `python tools/make_icon.py`
 once in a fresh checkout before the first build, or let CI do it for you.
 
 ## Install
 
-1. Open [Releases](../../releases) and download `ForceKillSetup-1.0.0.exe` from
+1. Open [Releases](../../releases) and download `ForceKillSetup-1.0.1.exe` from
 the latest release's assets (the "Source code" archives are not the app).
 2. Run it. The build is unsigned, so SmartScreen shows "Windows protected your
 PC" - click **More info**, then **Run anyway**.
@@ -42,6 +42,10 @@ them.
 - Tray feedback: every attempt reports what happened ("Terminated
   notepad.exe (PID 1234)", "Access denied - try Restart as administrator").
 - Child processes of the target are terminated too.
+- Optional **Start the app again right after killing it**, ticked in Settings: the
+  terminated program is launched again in its own folder, without the arguments
+  it was originally started with. Useful for an app you want restarted rather
+  than left closed.
 - Optional **Start with Windows** toggle in the tray menu: writes the per-user
   Run key for the running exe, so the standalone binary autostarts without the
   installer. The menu item is checked while that entry is active.
@@ -106,7 +110,7 @@ architecture directives use `x64compatible`, which replaced the deprecated
 iscc /DBinDir=build\Release installer\ForceKill.iss
 ```
 
-Output: `dist\ForceKillSetup-1.0.0.exe`. `BinDir` may also be set through the
+Output: `dist\ForceKillSetup-1.0.1.exe`. `BinDir` may also be set through the
 `#define` at the top of `installer/ForceKill.iss`.
 
 ### CI
@@ -116,8 +120,16 @@ Output: `dist\ForceKillSetup-1.0.0.exe`. `BinDir` may also be set through the
 Push a tag to publish:
 
 ```sh
-git tag v1.0.0 && git push origin v1.0.0
+git tag v1.0.1 && git push origin v1.0.1
 ```
+
+#### Releasing
+
+Pushing any new `v*` tag is the whole release: the workflow rebuilds both
+`ForceKill.exe` and the installer, then creates or updates the GitHub Release for
+that tag with both files attached. Bump `AppVersion` in `installer/ForceKill.iss`
+and the version in `CMakeLists.txt` before tagging, so the installer asset is
+named after the new version.
 
 The `installer-smoke` job goes further than compiling: it builds the installer,
 then runs `tools/test-installer.ps1`, which silently installs and uninstalls it
@@ -128,7 +140,7 @@ Windows after building the installer, with ForceKill itself quit from the tray (
 uninstaller would kill a running copy):
 
 ```powershell
-pwsh -File tools\test-installer.ps1 -Setup dist\ForceKillSetup-1.0.0.exe
+pwsh -File tools\test-installer.ps1 -Setup dist\ForceKillSetup-1.0.1.exe
 ```
 
 To see what the script derives from `installer/ForceKill.iss` before running any of
